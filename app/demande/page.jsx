@@ -323,7 +323,7 @@ export default function DemandePage() {
             <button
               type="button"
               onClick={ajouterLigneLibre}
-              className="text-sm text-[var(--green)] underline"
+              className="block text-sm text-[var(--green)] underline"
             >
               + Ajouter un document
             </button>
@@ -331,7 +331,7 @@ export default function DemandePage() {
             {erreur && <p className="stamp text-[var(--clay)]">{erreur}</p>}
             <button
               disabled={chargement}
-              className="bg-[var(--green)] text-white px-5 py-2.5 disabled:opacity-50 hover:bg-[var(--green-dark)] transition-colors"
+              className="block bg-[var(--green)] text-white px-5 py-2.5 disabled:opacity-50 hover:bg-[var(--green-dark)] transition-colors"
             >
               {chargement ? 'Envoi...' : 'Soumettre la demande'}
             </button>
