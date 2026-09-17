@@ -68,22 +68,31 @@ export default function ImportContribuables() {
     for (const ligne of lignes) {
       const ninea = String(ligne.NINEA).trim();
       const existant = parNinea.get(ninea);
+      const email = ligne.EMAIL || null;
+      const telephone = ligne.TELEPHONE || null;
+
       if (!existant) {
         aAjouter.push({
           ninea,
           raison_sociale: ligne.RAISON_SOCIALE,
           adresse: ligne.ADRESSE,
+          email,
+          telephone,
           statut_contribuable: 'actif',
         });
       } else if (
         existant.raison_sociale !== ligne.RAISON_SOCIALE ||
         existant.adresse !== ligne.ADRESSE ||
+        existant.email !== email ||
+        existant.telephone !== telephone ||
         existant.statut_contribuable !== 'actif'
       ) {
         aMettreAJour.push({
           ninea,
           raison_sociale: ligne.RAISON_SOCIALE,
           adresse: ligne.ADRESSE,
+          email,
+          telephone,
           statut_contribuable: 'actif',
         });
       }
@@ -107,7 +116,13 @@ export default function ImportContribuables() {
     for (const c of aMettreAJour) {
       await supabase
         .from('clients')
-        .update({ raison_sociale: c.raison_sociale, adresse: c.adresse, statut_contribuable: 'actif' })
+        .update({
+          raison_sociale: c.raison_sociale,
+          adresse: c.adresse,
+          email: c.email,
+          telephone: c.telephone,
+          statut_contribuable: 'actif',
+        })
         .eq('ninea', c.ninea);
     }
 

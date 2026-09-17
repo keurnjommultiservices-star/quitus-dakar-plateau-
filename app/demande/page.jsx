@@ -142,6 +142,12 @@ export default function DemandePage() {
             <div className="serif text-lg">{client.raison_sociale}</div>
             <div className="text-sm text-[var(--ink-soft)]">{client.adresse}</div>
             <div className="text-sm text-[var(--ink-soft)]">NINEA {client.ninea}</div>
+            {client.telephone && (
+              <div className="text-sm text-[var(--ink-soft)]">{client.telephone}</div>
+            )}
+            {client.email && (
+              <div className="text-sm text-[var(--ink-soft)]">{client.email}</div>
+            )}
           </div>
 
           {demandes.length > 0 && (
