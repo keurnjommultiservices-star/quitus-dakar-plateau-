@@ -1,0 +1,53 @@
+@import url('https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,400;8..60,500;8..60,600&family=IBM+Plex+Sans:wght@400;500;600&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --paper: #faf8f2;
+  --paper-raised: #ffffff;
+  --ink: #1b1f1c;
+  --ink-soft: #5c5747;
+  --line: #ddd6c4;
+  --green: #0f5c3e;
+  --green-dark: #0a3f2a;
+  --gold: #b8862e;
+  --clay: #a23b2e;
+}
+
+* {
+  border-color: var(--line);
+}
+
+html, body {
+  background: var(--paper);
+  color: var(--ink);
+  font-family: 'IBM Plex Sans', system-ui, sans-serif;
+}
+
+h1, h2, h3, .serif {
+  font-family: 'Source Serif 4', Georgia, serif;
+}
+
+.letterhead {
+  border-bottom: 1px solid var(--line);
+  background: linear-gradient(90deg, var(--green) 0%, var(--green) 45%, var(--gold) 50%, var(--green) 55%, var(--green) 100%);
+  height: 4px;
+}
+
+.register-row {
+  border-bottom: 1px solid var(--line);
+}
+.register-row:first-child {
+  border-top: 1px solid var(--line);
+}
+
+.stamp {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.875rem;
+  padding-left: 0.6rem;
+  border-left: 3px solid currentColor;
+}
