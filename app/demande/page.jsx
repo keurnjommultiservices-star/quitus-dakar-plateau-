@@ -4,7 +4,7 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { supabase } from '../../lib/supabaseClient';
-import { STATUTS, libelleStatut, couleurStatut } from '../../lib/statuts';
+import { STATUTS, libelleStatut, couleurStatut, fondStatut } from '../../lib/statuts';
 
 export default function DemandePage() {
   const router = useRouter();
@@ -157,7 +157,10 @@ export default function DemandePage() {
                 {demandes.map((d) => (
                   <div key={d.id} className="register-row flex justify-between items-center py-3 text-sm">
                     <span>{new Date(d.date_creation).toLocaleDateString('fr-FR')}</span>
-                    <span className="stamp" style={{ color: couleurStatut(d.statut) }}>
+                    <span
+                      className="text-sm px-2.5 py-1"
+                      style={{ backgroundColor: fondStatut(d.statut), color: couleurStatut(d.statut) }}
+                    >
                       {libelleStatut(d.statut)}
                     </span>
                   </div>

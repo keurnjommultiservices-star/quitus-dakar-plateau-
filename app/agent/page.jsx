@@ -99,7 +99,7 @@ export default function AgentDashboard() {
             className="px-3 py-1.5 border"
             style={
               filtreStatut === s.valeur
-                ? { borderColor: s.couleur, backgroundColor: s.couleur, color: 'white' }
+                ? { borderColor: s.texte, backgroundColor: s.fond, color: s.texte }
                 : { borderColor: 'var(--line)', color: 'var(--ink-soft)' }
             }
           >
