@@ -5,16 +5,64 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { supabase } from '../../lib/supabaseClient';
 import { STATUTS, libelleStatut, couleurStatut, fondStatut } from '../../lib/statuts';
+import { DOCUMENTS_REQUIS, slugPiece } from '../../lib/documentsRequis';
+
+let compteurLignesLibres = 0;
 
 export default function DemandePage() {
   const router = useRouter();
   const [ninea, setNinea] = useState('');
   const [client, setClient] = useState(null);
   const [demandes, setDemandes] = useState([]);
-  const [fichier, setFichier] = useState(null);
+  const [piecesFixes, setPiecesFixes] = useState(() =>
+    Object.fromEntries(DOCUMENTS_REQUIS.map((d) => [d, []]))
+  );
+  const [piecesLibres, setPiecesLibres] = useState([]);
   const [etape, setEtape] = useState('recherche'); // recherche | trouve | envoye
   const [erreur, setErreur] = useState('');
   const [chargement, setChargement] = useState(false);
+
+  function ajouterFichiersFixe(label, e) {
+    const nouveaux = Array.from(e.target.files || []);
+    setPiecesFixes((prev) => ({ ...prev, [label]: [...prev[label], ...nouveaux] }));
+    e.target.value = '';
+  }
+
+  function retirerFichierFixe(label, index) {
+    setPiecesFixes((prev) => ({ ...prev, [label]: prev[label].filter((_, i) => i !== index) }));
+  }
+
+  function ajouterLigneLibre() {
+    compteurLignesLibres += 1;
+    setPiecesLibres((prev) => [...prev, { id: compteurLignesLibres, label: '', fichiers: [] }]);
+  }
+
+  function renommerLigneLibre(id, label) {
+    setPiecesLibres((prev) => prev.map((l) => (l.id === id ? { ...l, label } : l)));
+  }
+
+  function ajouterFichiersLibre(id, e) {
+    const nouveaux = Array.from(e.target.files || []);
+    setPiecesLibres((prev) =>
+      prev.map((l) => (l.id === id ? { ...l, fichiers: [...l.fichiers, ...nouveaux] } : l))
+    );
+    e.target.value = '';
+  }
+
+  function retirerFichierLibre(id, index) {
+    setPiecesLibres((prev) =>
+      prev.map((l) => (l.id === id ? { ...l, fichiers: l.fichiers.filter((_, i) => i !== index) } : l))
+    );
+  }
+
+  function retirerLigneLibre(id) {
+    setPiecesLibres((prev) => prev.filter((l) => l.id !== id));
+  }
+
+  function reinitialiserPieces() {
+    setPiecesFixes(Object.fromEntries(DOCUMENTS_REQUIS.map((d) => [d, []])));
+    setPiecesLibres([]);
+  }
 
   async function rechercherNinea(e) {
     e.preventDefault();
@@ -49,7 +97,10 @@ export default function DemandePage() {
 
   async function soumettreDemande(e) {
     e.preventDefault();
-    if (!fichier) {
+
+    const totalFixes = Object.values(piecesFixes).reduce((n, l) => n + l.length, 0);
+    const totalLibres = piecesLibres.reduce((n, l) => n + l.fichiers.length, 0);
+    if (totalFixes + totalLibres === 0) {
       setErreur('Veuillez joindre au moins un document.');
       return;
     }
@@ -68,13 +119,27 @@ export default function DemandePage() {
       return;
     }
 
-    const chemin = `${client.ninea}/${nouvelleDemande.id}/${fichier.name}`;
-    const { error: errUpload } = await supabase.storage
-      .from('pieces-jointes')
-      .upload(chemin, fichier);
+    let echecUpload = false;
 
-    if (errUpload) {
-      setErreur('Demande créée, mais le fichier n\'a pas pu être envoyé. Contactez le centre.');
+    for (const [label, liste] of Object.entries(piecesFixes)) {
+      for (const fichier of liste) {
+        const chemin = `${client.ninea}/${nouvelleDemande.id}/${slugPiece(label)}/${fichier.name}`;
+        const { error } = await supabase.storage.from('pieces-jointes').upload(chemin, fichier);
+        if (error) echecUpload = true;
+      }
+    }
+
+    for (const ligne of piecesLibres) {
+      const label = ligne.label.trim() || 'autre';
+      for (const fichier of ligne.fichiers) {
+        const chemin = `${client.ninea}/${nouvelleDemande.id}/${slugPiece(label)}/${fichier.name}`;
+        const { error } = await supabase.storage.from('pieces-jointes').upload(chemin, fichier);
+        if (error) echecUpload = true;
+      }
+    }
+
+    if (echecUpload) {
+      setErreur('Demande créée, mais certains fichiers n\'ont pas pu être envoyés. Contactez le centre.');
     }
 
     setDemandes((prev) => [nouvelleDemande, ...prev]);
@@ -86,7 +151,7 @@ export default function DemandePage() {
     setNinea('');
     setClient(null);
     setDemandes([]);
-    setFichier(null);
+    reinitialiserPieces();
     setEtape('recherche');
     router.push('/');
   }
@@ -169,18 +234,100 @@ export default function DemandePage() {
             </div>
           )}
 
-          <form onSubmit={soumettreDemande} className="space-y-4 pt-2">
+          <form onSubmit={soumettreDemande} className="space-y-6 pt-2">
             <h2 className="serif text-lg">Nouvelle demande</h2>
+
             <div>
-              <label className="block text-sm text-[var(--ink-soft)] mb-1">Pièce jointe (PDF ou image)</label>
-              <input
-                type="file"
-                accept=".pdf,image/*"
-                onChange={(e) => setFichier(e.target.files[0])}
-                className="w-full text-sm"
-                required
-              />
+              {DOCUMENTS_REQUIS.map((label) => (
+                <div key={label} className="register-row py-3">
+                  <div className="flex justify-between items-center gap-3">
+                    <span className="text-sm">{label}</span>
+                    <label className="text-xs text-[var(--green)] underline cursor-pointer shrink-0">
+                      Ajouter un fichier
+                      <input
+                        type="file"
+                        accept=".pdf,image/*"
+                        multiple
+                        onChange={(e) => ajouterFichiersFixe(label, e)}
+                        className="hidden"
+                      />
+                    </label>
+                  </div>
+                  {piecesFixes[label].length > 0 && (
+                    <ul className="mt-2 space-y-1">
+                      {piecesFixes[label].map((f, i) => (
+                        <li key={i} className="flex justify-between items-center text-xs text-[var(--ink-soft)]">
+                          <span className="truncate">{f.name}</span>
+                          <button
+                            type="button"
+                            onClick={() => retirerFichierFixe(label, i)}
+                            className="text-[var(--clay)] ml-3 shrink-0"
+                          >
+                            Retirer
+                          </button>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                </div>
+              ))}
+
+              {piecesLibres.map((ligne) => (
+                <div key={ligne.id} className="register-row py-3">
+                  <div className="flex justify-between items-center gap-3">
+                    <input
+                      type="text"
+                      placeholder="Nom du document"
+                      value={ligne.label}
+                      onChange={(e) => renommerLigneLibre(ligne.id, e.target.value)}
+                      className="text-sm flex-1 border-b border-[var(--line)] bg-transparent focus:outline-none focus:border-[var(--green)] py-0.5"
+                    />
+                    <label className="text-xs text-[var(--green)] underline cursor-pointer shrink-0">
+                      Ajouter un fichier
+                      <input
+                        type="file"
+                        accept=".pdf,image/*"
+                        multiple
+                        onChange={(e) => ajouterFichiersLibre(ligne.id, e)}
+                        className="hidden"
+                      />
+                    </label>
+                    <button
+                      type="button"
+                      onClick={() => retirerLigneLibre(ligne.id)}
+                      className="text-[var(--clay)] text-xs shrink-0"
+                    >
+                      Supprimer
+                    </button>
+                  </div>
+                  {ligne.fichiers.length > 0 && (
+                    <ul className="mt-2 space-y-1">
+                      {ligne.fichiers.map((f, i) => (
+                        <li key={i} className="flex justify-between items-center text-xs text-[var(--ink-soft)]">
+                          <span className="truncate">{f.name}</span>
+                          <button
+                            type="button"
+                            onClick={() => retirerFichierLibre(ligne.id, i)}
+                            className="text-[var(--clay)] ml-3 shrink-0"
+                          >
+                            Retirer
+                          </button>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                </div>
+              ))}
             </div>
+
+            <button
+              type="button"
+              onClick={ajouterLigneLibre}
+              className="text-sm text-[var(--green)] underline"
+            >
+              + Ajouter un document
+            </button>
+
             {erreur && <p className="stamp text-[var(--clay)]">{erreur}</p>}
             <button
               disabled={chargement}
@@ -201,7 +348,7 @@ export default function DemandePage() {
           <button
             onClick={() => {
               setEtape('trouve');
-              setFichier(null);
+              reinitialiserPieces();
             }}
             className="text-sm underline text-[var(--green)]"
           >
