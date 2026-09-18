@@ -3,9 +3,6 @@ import Link from 'next/link';
 export default function Home() {
   return (
     <main className="max-w-3xl mx-auto px-6 py-16">
-      <p className="text-sm tracking-wide text-[var(--ink-soft)] mb-1">
-        Direction Générale des Impôts et des Domaines
-      </p>
       <h1 className="serif text-3xl font-medium mb-2">
         Quitus fiscal — Centre des impôts de Dakar Plateau
       </h1>
