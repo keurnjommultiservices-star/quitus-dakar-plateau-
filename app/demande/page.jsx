@@ -18,9 +18,21 @@ export default function DemandePage() {
     Object.fromEntries(DOCUMENTS_REQUIS.map((d) => [d, []]))
   );
   const [piecesLibres, setPiecesLibres] = useState([]);
-  const [etape, setEtape] = useState('recherche'); // recherche | trouve | envoye
+  // etape: recherche | motdepasse | code | definir_motdepasse | trouve | envoye
+  const [etape, setEtape] = useState('recherche');
+  const [modeCode, setModeCode] = useState('creation'); // 'creation' (1ère fois) | 'oubli'
+  const [motDePasseSaisi, setMotDePasseSaisi] = useState('');
+  const [codeSaisi, setCodeSaisi] = useState('');
+  const [nouveauMotDePasse, setNouveauMotDePasse] = useState('');
+  const [confirmMotDePasse, setConfirmMotDePasse] = useState('');
   const [erreur, setErreur] = useState('');
   const [chargement, setChargement] = useState(false);
+
+  function masquerEmail(email) {
+    const [nom, domaine] = email.split('@');
+    const visible = nom.slice(0, 2);
+    return `${visible}${'*'.repeat(Math.max(nom.length - 2, 1))}@${domaine}`;
+  }
 
   function ajouterFichiersFixe(label, e) {
     const nouveaux = Array.from(e.target.files || []);
@@ -64,6 +76,15 @@ export default function DemandePage() {
     setPiecesLibres([]);
   }
 
+  async function chargerDemandes(nineaValue) {
+    const { data } = await supabase
+      .from('demandes')
+      .select('*')
+      .eq('ninea', nineaValue)
+      .order('date_creation', { ascending: false });
+    setDemandes(data || []);
+  }
+
   async function rechercherNinea(e) {
     e.preventDefault();
     setErreur('');
@@ -78,19 +99,145 @@ export default function DemandePage() {
 
     if (err1 || !clientTrouve) {
       setErreur("NINEA non reconnu. Veuillez contacter le centre des impôts.");
-      setClient(null);
       setChargement(false);
       return;
     }
 
-    const { data: demandesExistantes } = await supabase
-      .from('demandes')
-      .select('*')
-      .eq('ninea', ninea.trim())
-      .order('date_creation', { ascending: false });
+    if (!clientTrouve.email) {
+      setErreur("Aucun email enregistré pour ce NINEA. Veuillez contacter le centre des impôts.");
+      setChargement(false);
+      return;
+    }
 
     setClient(clientTrouve);
-    setDemandes(demandesExistantes || []);
+
+    if (clientTrouve.user_id) {
+      // Compte déjà créé : on demande le mot de passe
+      setEtape('motdepasse');
+      setChargement(false);
+      return;
+    }
+
+    // Première visite : vérification par email avant de créer le mot de passe
+    const { error: errOtp } = await supabase.auth.signInWithOtp({
+      email: clientTrouve.email,
+      options: { shouldCreateUser: true },
+    });
+
+    if (errOtp) {
+      setErreur("Impossible d'envoyer le code de vérification. Réessayez.");
+      setChargement(false);
+      return;
+    }
+
+    setModeCode('creation');
+    setEtape('code');
+    setChargement(false);
+  }
+
+  async function validerMotDePasse(e) {
+    e.preventDefault();
+    setErreur('');
+    setChargement(true);
+
+    const { error } = await supabase.auth.signInWithPassword({
+      email: client.email,
+      password: motDePasseSaisi,
+    });
+
+    if (error) {
+      setErreur('Mot de passe incorrect.');
+      setChargement(false);
+      return;
+    }
+
+    await chargerDemandes(client.ninea);
+    setEtape('trouve');
+    setChargement(false);
+  }
+
+  async function motDePasseOublie() {
+    setErreur('');
+    setChargement(true);
+    const { error } = await supabase.auth.signInWithOtp({
+      email: client.email,
+      options: { shouldCreateUser: false },
+    });
+    setChargement(false);
+    if (error) {
+      setErreur("Impossible d'envoyer le code. Réessayez.");
+      return;
+    }
+    setModeCode('oubli');
+    setEtape('code');
+  }
+
+  async function verifierCode(e) {
+    e.preventDefault();
+    setErreur('');
+    setChargement(true);
+
+    const { error: errVerif } = await supabase.auth.verifyOtp({
+      email: client.email,
+      token: codeSaisi.trim(),
+      type: 'email',
+    });
+
+    if (errVerif) {
+      setErreur('Code invalide ou expiré. Réessayez.');
+      setChargement(false);
+      return;
+    }
+
+    setCodeSaisi('');
+    setEtape('definir_motdepasse');
+    setChargement(false);
+  }
+
+  async function renvoyerCode() {
+    setErreur('');
+    setChargement(true);
+    const { error } = await supabase.auth.signInWithOtp({
+      email: client.email,
+      options: { shouldCreateUser: modeCode === 'creation' },
+    });
+    setChargement(false);
+    if (error) setErreur('Impossible de renvoyer le code. Réessayez.');
+  }
+
+  async function definirMotDePasse(e) {
+    e.preventDefault();
+    setErreur('');
+
+    if (nouveauMotDePasse.length < 6) {
+      setErreur('Le mot de passe doit contenir au moins 6 caractères.');
+      return;
+    }
+    if (nouveauMotDePasse !== confirmMotDePasse) {
+      setErreur('Les mots de passe ne correspondent pas.');
+      return;
+    }
+
+    setChargement(true);
+
+    const { error: errMaj } = await supabase.auth.updateUser({ password: nouveauMotDePasse });
+    if (errMaj) {
+      setErreur('Erreur lors de la création du mot de passe. Réessayez.');
+      setChargement(false);
+      return;
+    }
+
+    if (!client.user_id) {
+      const { data: session } = await supabase.auth.getUser();
+      await supabase
+        .from('clients')
+        .update({ user_id: session.user.id })
+        .eq('ninea', client.ninea);
+    }
+
+    setNouveauMotDePasse('');
+    setConfirmMotDePasse('');
+    await chargerDemandes(client.ninea);
     setEtape('trouve');
     setChargement(false);
   }
@@ -147,12 +294,20 @@ export default function DemandePage() {
     setChargement(false);
   }
 
-  function deconnecter() {
-    setNinea('');
+  function retourRecherche() {
     setClient(null);
     setDemandes([]);
-    reinitialiserPieces();
+    setNinea('');
+    setMotDePasseSaisi('');
+    setCodeSaisi('');
+    setErreur('');
     setEtape('recherche');
+  }
+
+  async function deconnecter() {
+    await supabase.auth.signOut();
+    reinitialiserPieces();
+    retourRecherche();
     router.push('/');
   }
 
@@ -189,17 +344,113 @@ export default function DemandePage() {
         </form>
       )}
 
-      {etape === 'trouve' && client && (
-        <div className="space-y-8">
+      {etape === 'motdepasse' && client && (
+        <form onSubmit={validerMotDePasse} className="space-y-5">
+          <button type="button" onClick={retourRecherche} className="text-sm text-[var(--ink-soft)] hover:text-[var(--ink)]">
+            ← Nouvelle recherche
+          </button>
+          <p className="text-sm text-[var(--ink-soft)]">{client.raison_sociale} — NINEA {client.ninea}</p>
+          <div>
+            <label className="block text-sm text-[var(--ink-soft)] mb-1">Mot de passe</label>
+            <input
+              type="password"
+              className="w-full border border-[var(--line)] bg-[var(--paper-raised)] px-3 py-2 focus:outline-none focus:border-[var(--green)]"
+              value={motDePasseSaisi}
+              onChange={(e) => setMotDePasseSaisi(e.target.value)}
+              required
+            />
+          </div>
+          {erreur && <p className="stamp text-[var(--clay)]">{erreur}</p>}
+          <div className="flex items-center gap-4">
+            <button
+              disabled={chargement}
+              className="bg-[var(--green)] text-white px-5 py-2.5 disabled:opacity-50 hover:bg-[var(--green-dark)] transition-colors"
+            >
+              {chargement ? 'Connexion...' : 'Continuer'}
+            </button>
+            <button type="button" onClick={motDePasseOublie} className="text-sm text-[var(--green)] underline">
+              Mot de passe oublié ?
+            </button>
+          </div>
+        </form>
+      )}
+
+      {etape === 'code' && client && (
+        <form onSubmit={verifierCode} className="space-y-5">
           <button
-            onClick={() => {
-              setEtape('recherche');
-              setClient(null);
-              setDemandes([]);
-              setNinea('');
-            }}
+            type="button"
+            onClick={retourRecherche}
             className="text-sm text-[var(--ink-soft)] hover:text-[var(--ink)]"
           >
+            ← Nouvelle recherche
+          </button>
+          <p className="text-sm text-[var(--ink-soft)]">
+            Un code de vérification a été envoyé à {masquerEmail(client.email)}. Saisissez-le ci-dessous.
+          </p>
+          <div>
+            <label className="block text-sm text-[var(--ink-soft)] mb-1">Code reçu par email</label>
+            <input
+              className="w-full border border-[var(--line)] bg-[var(--paper-raised)] px-3 py-2 focus:outline-none focus:border-[var(--green)]"
+              value={codeSaisi}
+              onChange={(e) => setCodeSaisi(e.target.value)}
+              required
+            />
+          </div>
+          {erreur && <p className="stamp text-[var(--clay)]">{erreur}</p>}
+          <div className="flex items-center gap-4">
+            <button
+              disabled={chargement}
+              className="bg-[var(--green)] text-white px-5 py-2.5 disabled:opacity-50 hover:bg-[var(--green-dark)] transition-colors"
+            >
+              {chargement ? 'Vérification...' : 'Valider'}
+            </button>
+            <button type="button" onClick={renvoyerCode} className="text-sm text-[var(--green)] underline">
+              Renvoyer le code
+            </button>
+          </div>
+        </form>
+      )}
+
+      {etape === 'definir_motdepasse' && client && (
+        <form onSubmit={definirMotDePasse} className="space-y-5">
+          <p className="text-sm text-[var(--ink-soft)]">
+            {client.user_id ? 'Choisissez un nouveau mot de passe.' : 'Créez un mot de passe pour vos prochaines visites.'}
+          </p>
+          <div>
+            <label className="block text-sm text-[var(--ink-soft)] mb-1">Nouveau mot de passe</label>
+            <input
+              type="password"
+              className="w-full border border-[var(--line)] bg-[var(--paper-raised)] px-3 py-2 focus:outline-none focus:border-[var(--green)]"
+              value={nouveauMotDePasse}
+              onChange={(e) => setNouveauMotDePasse(e.target.value)}
+              required
+              minLength={6}
+            />
+          </div>
+          <div>
+            <label className="block text-sm text-[var(--ink-soft)] mb-1">Confirmer le mot de passe</label>
+            <input
+              type="password"
+              className="w-full border border-[var(--line)] bg-[var(--paper-raised)] px-3 py-2 focus:outline-none focus:border-[var(--green)]"
+              value={confirmMotDePasse}
+              onChange={(e) => setConfirmMotDePasse(e.target.value)}
+              required
+              minLength={6}
+            />
+          </div>
+          {erreur && <p className="stamp text-[var(--clay)]">{erreur}</p>}
+          <button
+            disabled={chargement}
+            className="bg-[var(--green)] text-white px-5 py-2.5 disabled:opacity-50 hover:bg-[var(--green-dark)] transition-colors"
+          >
+            {chargement ? 'Enregistrement...' : 'Valider'}
+          </button>
+        </form>
+      )}
+
+      {etape === 'trouve' && client && (
+        <div className="space-y-8">
+          <button onClick={retourRecherche} className="text-sm text-[var(--ink-soft)] hover:text-[var(--ink)]">
             ← Nouvelle recherche
           </button>
 

@@ -63,6 +63,9 @@ export default function LoginAgent() {
         >
           {chargement ? 'Connexion...' : 'Se connecter'}
         </button>
+        <Link href="/agent/mot-de-passe-oublie" className="block text-sm text-[var(--green)] underline text-center">
+          Mot de passe oublié ?
+        </Link>
       </form>
     </main>
   );

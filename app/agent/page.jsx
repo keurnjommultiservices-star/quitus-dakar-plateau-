@@ -75,10 +75,18 @@ export default function AgentDashboard() {
         </div>
         <div className="flex gap-5 text-sm pt-1">
           {role === 'superviseur' && (
-            <Link href="/agent/import" className="text-[var(--green)] hover:underline">
-              Importer les contribuables
-            </Link>
+            <>
+              <Link href="/agent/import" className="text-[var(--green)] hover:underline">
+                Importer les contribuables
+              </Link>
+              <Link href="/agent/agents" className="text-[var(--green)] hover:underline">
+                Gérer les agents
+              </Link>
+            </>
           )}
+          <Link href="/agent/changer-mot-de-passe" className="text-[var(--green)] hover:underline">
+            Changer mon mot de passe
+          </Link>
           <button onClick={deconnecter} className="text-[var(--ink-soft)] hover:text-[var(--ink)]">
             Déconnexion
           </button>

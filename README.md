@@ -19,10 +19,16 @@ Puis ouvrir http://localhost:3000
 
 ## Créer les comptes agents
 
-1. Tableau de bord Supabase → Authentication → Users → "Add user" (email + mot de passe). Copier l'UID généré.
-2. Table Editor → `profils_agents` → Insert row : `user_id` = l'UID copié, `role` = `agent` ou `superviseur`.
+Le superviseur peut créer lui-même les comptes agents, depuis **"Gérer les agents"** dans son tableau de bord (`/agent/agents`). Il saisit l'email, un mot de passe temporaire, le nom et le rôle (agent/superviseur) — le compte est créé instantanément.
 
-Seul le rôle `superviseur` (le chef de bureau) voit le lien d'import et peut importer la liste des contribuables ; un `agent` ne voit que les dossiers et peut changer leur statut.
+**Mais le tout premier compte superviseur (celui du chef de bureau) doit encore être créé manuellement une fois par toi**, dans Supabase (Authentication → Add user, puis une ligne dans `profils_agents` avec `role = superviseur`) — ensuite, il peut créer les suivants lui-même.
+
+Cette fonctionnalité nécessite la clé secrète Supabase (`service_role`), à ajouter une seule fois :
+1. Tableau de bord Supabase → Project Settings → API Keys → `service_role` → "Reveal" → copier
+2. Coller dans `.env.local` : `SUPABASE_SERVICE_ROLE_KEY=...`
+3. Sur Vercel : Project Settings → Environment Variables → ajouter `SUPABASE_SERVICE_ROLE_KEY` (type **Secret**, sans le préfixe `NEXT_PUBLIC_`, donc jamais visible côté navigateur)
+
+**Important** : cette clé donne un accès total à la base de données. Ne jamais la partager, ne jamais la committer sur GitHub (le `.gitignore` exclut déjà `.env.local`).
 
 ## Structure
 
