@@ -315,7 +315,7 @@ export default function DemandePage() {
   return (
     <main className="max-w-xl mx-auto px-6 py-16">
       <div className="flex justify-between items-center">
-        <Link href="/" className="text-sm text-[var(--ink-soft)] hover:text-[var(--ink)]">← Accueil</Link>
+        <Link href="/" className="text-base text-[var(--ink-soft)] hover:text-[var(--ink)]">← Accueil</Link>
         {etape !== 'recherche' && (
           <button onClick={deconnecter} className="text-sm text-[var(--ink-soft)] hover:text-[var(--ink)]">
             Se déconnecter
