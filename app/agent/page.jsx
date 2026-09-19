@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { supabase } from '../../lib/supabaseClient';
-import { STATUTS, couleurStatut } from '../../lib/statuts';
+import { STATUTS, couleurStatut, fondStatut } from '../../lib/statuts';
 
 export default function AgentDashboard() {
   const [session, setSession] = useState(undefined);
@@ -76,15 +76,15 @@ export default function AgentDashboard() {
         <div className="flex gap-5 text-sm pt-1">
           {role === 'superviseur' && (
             <>
-              <Link href="/agent/import" className="text-[var(--green)] hover:underline">
+              <Link href="/agent/import" className="text-[var(--dgid-brown)] hover:underline">
                 Importer les contribuables
               </Link>
-              <Link href="/agent/agents" className="text-[var(--green)] hover:underline">
+              <Link href="/agent/agents" className="text-[var(--dgid-brown)] hover:underline">
                 Gérer les agents
               </Link>
             </>
           )}
-          <Link href="/agent/changer-mot-de-passe" className="text-[var(--green)] hover:underline">
+          <Link href="/agent/changer-mot-de-passe" className="text-[var(--dgid-brown)] hover:underline">
             Changer mon mot de passe
           </Link>
           <button onClick={deconnecter} className="text-[var(--ink-soft)] hover:text-[var(--ink)]">
@@ -96,7 +96,7 @@ export default function AgentDashboard() {
       <div className="flex gap-2 mb-6 text-sm">
         <button
           onClick={() => setFiltreStatut('tous')}
-          className={`px-3 py-1.5 border ${filtreStatut === 'tous' ? 'border-[var(--ink)] bg-[var(--ink)] text-white' : 'border-[var(--line)] text-[var(--ink-soft)]'}`}
+          className={`px-3 py-1.5 border font-bold ${filtreStatut === 'tous' ? 'border-[var(--dgid-brown)] bg-[var(--dgid-brown)] text-white' : 'border-[var(--line)] text-[var(--ink-soft)] font-normal'}`}
         >
           Tous
         </button>
@@ -104,10 +104,10 @@ export default function AgentDashboard() {
           <button
             key={s.valeur}
             onClick={() => setFiltreStatut(s.valeur)}
-            className="px-3 py-1.5 border"
+            className={`px-3 py-1.5 border ${filtreStatut === s.valeur ? 'font-bold' : ''}`}
             style={
               filtreStatut === s.valeur
-                ? { borderColor: s.texte, backgroundColor: s.fond, color: s.texte }
+                ? { borderColor: s.fond, backgroundColor: s.fond, color: s.texte }
                 : { borderColor: 'var(--line)', color: 'var(--ink-soft)' }
             }
           >
@@ -128,8 +128,8 @@ export default function AgentDashboard() {
             <select
               value={d.statut}
               onChange={(e) => changerStatut(d, e.target.value)}
-              className="border px-3 py-1.5 text-sm bg-[var(--paper-raised)]"
-              style={{ borderColor: couleurStatut(d.statut), color: couleurStatut(d.statut) }}
+              className="border-0 px-3 py-1.5 text-sm font-bold"
+              style={{ backgroundColor: fondStatut(d.statut), color: couleurStatut(d.statut) }}
             >
               {STATUTS.map((s) => (
                 <option key={s.valeur} value={s.valeur}>

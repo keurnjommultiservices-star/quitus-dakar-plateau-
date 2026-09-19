@@ -34,7 +34,7 @@ export default function MotDePasseOublie() {
       <h1 className="serif text-2xl mt-3 mb-8">Mot de passe oublié</h1>
 
       {envoye ? (
-        <p className="stamp" style={{ color: 'var(--green)' }}>
+        <p className="stamp" style={{ color: 'var(--dgid-brown)' }}>
           Un email vous a été envoyé avec un lien pour réinitialiser votre mot de passe.
         </p>
       ) : (
@@ -43,7 +43,7 @@ export default function MotDePasseOublie() {
             <label className="block text-sm text-[var(--ink-soft)] mb-1">Email</label>
             <input
               type="email"
-              className="w-full border border-[var(--line)] bg-[var(--paper-raised)] px-3 py-2 focus:outline-none focus:border-[var(--green)]"
+              className="w-full border border-[var(--line)] bg-[var(--paper-raised)] px-3 py-2 focus:outline-none focus:border-[var(--dgid-brown)]"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
@@ -52,7 +52,7 @@ export default function MotDePasseOublie() {
           {erreur && <p className="stamp text-[var(--clay)]">{erreur}</p>}
           <button
             disabled={chargement}
-            className="bg-[var(--green)] text-white px-5 py-2.5 w-full disabled:opacity-50 hover:bg-[var(--green-dark)] transition-colors"
+            className="bg-[var(--dgid-brown)] text-white px-5 py-2.5 w-full disabled:opacity-50 hover:bg-[var(--dgid-brown-dark)] transition-colors"
           >
             {chargement ? 'Envoi...' : 'Envoyer le lien'}
           </button>

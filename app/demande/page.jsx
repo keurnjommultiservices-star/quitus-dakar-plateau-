@@ -328,7 +328,7 @@ export default function DemandePage() {
           <div>
             <label className="block text-sm text-[var(--ink-soft)] mb-1">Numéro NINEA</label>
             <input
-              className="w-full border border-[var(--line)] bg-[var(--paper-raised)] px-3 py-2 focus:outline-none focus:border-[var(--green)]"
+              className="w-full border border-[var(--dgid-brown)] bg-[var(--dgid-brown)] text-white placeholder-white/60 px-3 py-2 focus:outline-none"
               value={ninea}
               onChange={(e) => setNinea(e.target.value)}
               required
@@ -457,9 +457,11 @@ export default function DemandePage() {
           <div className="border border-[var(--line)] bg-[var(--paper-raised)] p-5">
             <div className="serif text-lg">{client.raison_sociale}</div>
             <div className="text-sm text-[var(--ink-soft)]">{client.adresse}</div>
-            <div className="text-sm text-[var(--ink-soft)]">NINEA {client.ninea}</div>
+            <span className="inline-block text-sm text-white bg-[var(--dgid-brown)] px-2.5 py-1 mt-2">
+              NINEA {client.ninea}
+            </span>
             {client.telephone && (
-              <div className="text-sm text-[var(--ink-soft)]">{client.telephone}</div>
+              <div className="text-sm text-[var(--ink-soft)] mt-2">{client.telephone}</div>
             )}
             {client.email && (
               <div className="text-sm text-[var(--ink-soft)]">{client.email}</div>
@@ -474,7 +476,7 @@ export default function DemandePage() {
                   <div key={d.id} className="register-row flex justify-between items-center py-3 text-sm">
                     <span>{new Date(d.date_creation).toLocaleDateString('fr-FR')}</span>
                     <span
-                      className="text-sm px-2.5 py-1"
+                      className="text-sm font-bold px-2.5 py-1"
                       style={{ backgroundColor: fondStatut(d.statut), color: couleurStatut(d.statut) }}
                     >
                       {libelleStatut(d.statut)}

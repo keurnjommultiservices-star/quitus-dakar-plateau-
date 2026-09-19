@@ -64,7 +64,7 @@ export default function ChangerMotDePasse() {
           <label className="block text-sm text-[var(--ink-soft)] mb-1">Nouveau mot de passe</label>
           <input
             type="password"
-            className="w-full border border-[var(--line)] bg-[var(--paper-raised)] px-3 py-2 focus:outline-none focus:border-[var(--green)]"
+            className="w-full border border-[var(--line)] bg-[var(--paper-raised)] px-3 py-2 focus:outline-none focus:border-[var(--dgid-brown)]"
             value={motDePasse}
             onChange={(e) => setMotDePasse(e.target.value)}
             required
@@ -75,7 +75,7 @@ export default function ChangerMotDePasse() {
           <label className="block text-sm text-[var(--ink-soft)] mb-1">Confirmer le mot de passe</label>
           <input
             type="password"
-            className="w-full border border-[var(--line)] bg-[var(--paper-raised)] px-3 py-2 focus:outline-none focus:border-[var(--green)]"
+            className="w-full border border-[var(--line)] bg-[var(--paper-raised)] px-3 py-2 focus:outline-none focus:border-[var(--dgid-brown)]"
             value={confirmation}
             onChange={(e) => setConfirmation(e.target.value)}
             required
@@ -83,10 +83,10 @@ export default function ChangerMotDePasse() {
           />
         </div>
         {erreur && <p className="stamp text-[var(--clay)]">{erreur}</p>}
-        {message && <p className="stamp" style={{ color: 'var(--green)' }}>{message}</p>}
+        {message && <p className="stamp" style={{ color: 'var(--dgid-brown)' }}>{message}</p>}
         <button
           disabled={chargement}
-          className="bg-[var(--green)] text-white px-5 py-2.5 w-full disabled:opacity-50 hover:bg-[var(--green-dark)] transition-colors"
+          className="bg-[var(--dgid-brown)] text-white px-5 py-2.5 w-full disabled:opacity-50 hover:bg-[var(--dgid-brown-dark)] transition-colors"
         >
           {chargement ? 'Enregistrement...' : 'Valider'}
         </button>

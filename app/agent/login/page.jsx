@@ -40,7 +40,7 @@ export default function LoginAgent() {
           <label className="block text-sm text-[var(--ink-soft)] mb-1">Email</label>
           <input
             type="email"
-            className="w-full border border-[var(--line)] bg-[var(--paper-raised)] px-3 py-2 focus:outline-none focus:border-[var(--green)]"
+            className="w-full border border-[var(--line)] bg-[var(--paper-raised)] px-3 py-2 focus:outline-none focus:border-[var(--dgid-brown)]"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             required
@@ -50,7 +50,7 @@ export default function LoginAgent() {
           <label className="block text-sm text-[var(--ink-soft)] mb-1">Mot de passe</label>
           <input
             type="password"
-            className="w-full border border-[var(--line)] bg-[var(--paper-raised)] px-3 py-2 focus:outline-none focus:border-[var(--green)]"
+            className="w-full border border-[var(--line)] bg-[var(--paper-raised)] px-3 py-2 focus:outline-none focus:border-[var(--dgid-brown)]"
             value={motDePasse}
             onChange={(e) => setMotDePasse(e.target.value)}
             required
@@ -59,11 +59,11 @@ export default function LoginAgent() {
         {erreur && <p className="stamp text-[var(--clay)]">{erreur}</p>}
         <button
           disabled={chargement}
-          className="bg-[var(--green)] text-white px-5 py-2.5 w-full disabled:opacity-50 hover:bg-[var(--green-dark)] transition-colors"
+          className="bg-[var(--dgid-brown)] text-white px-5 py-2.5 w-full disabled:opacity-50 hover:bg-[var(--dgid-brown-dark)] transition-colors"
         >
           {chargement ? 'Connexion...' : 'Se connecter'}
         </button>
-        <Link href="/agent/mot-de-passe-oublie" className="block text-sm text-[var(--green)] underline text-center">
+        <Link href="/agent/mot-de-passe-oublie" className="block text-sm text-[var(--dgid-brown)] underline text-center">
           Mot de passe oublié ?
         </Link>
       </form>

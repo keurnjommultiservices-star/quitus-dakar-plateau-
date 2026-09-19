@@ -157,7 +157,7 @@ export default function ImportContribuables() {
       {erreur && <p className="stamp text-[var(--clay)] mb-4">{erreur}</p>}
 
       {termine && (
-        <p className="stamp mb-4" style={{ color: 'var(--green)' }}>Import appliqué avec succès.</p>
+        <p className="stamp mb-4" style={{ color: 'var(--dgid-brown)' }}>Import appliqué avec succès.</p>
       )}
 
       {resume && (
@@ -172,7 +172,7 @@ export default function ImportContribuables() {
         <button
           onClick={confirmerImport}
           disabled={chargement}
-          className="bg-[var(--green)] text-white px-5 py-2.5 disabled:opacity-50 hover:bg-[var(--green-dark)] transition-colors"
+          className="bg-[var(--dgid-brown)] text-white px-5 py-2.5 disabled:opacity-50 hover:bg-[var(--dgid-brown-dark)] transition-colors"
         >
           {chargement ? 'Application en cours...' : "Confirmer l'import"}
         </button>
