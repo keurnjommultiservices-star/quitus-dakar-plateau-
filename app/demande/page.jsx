@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { supabase } from '../../lib/supabaseClient';
 import { STATUTS, libelleStatut, couleurStatut, fondStatut } from '../../lib/statuts';
@@ -488,7 +489,10 @@ export default function DemandePage() {
           )}
 
           <form onSubmit={soumettreDemande} className="space-y-6 pt-2">
-            <h2 className="serif text-lg">Nouvelle demande</h2>
+            <div className="flex items-center gap-3">
+              <Image src="/icone-demande.png" alt="" width={32} height={36} />
+              <h2 className="serif text-lg">Liste des pièces à joindre pour la demande de quitus</h2>
+            </div>
 
             <div>
               {DOCUMENTS_REQUIS.map((label) => (
