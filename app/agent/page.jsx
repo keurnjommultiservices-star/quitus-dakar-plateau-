@@ -70,10 +70,10 @@ export default function AgentDashboard() {
     <main className="max-w-4xl mx-auto px-6 py-12">
       <div className="flex justify-between items-start mb-10">
         <div>
-          <Link href="/" className="text-sm text-[var(--ink-soft)] hover:text-[var(--ink)]">← Accueil</Link>
+          <Link href="/" className="text-base text-[var(--ink-soft)] hover:text-[var(--ink)]">← Accueil</Link>
           <h1 className="serif text-2xl mt-3">Dossiers de quitus</h1>
         </div>
-        <div className="flex gap-5 text-sm pt-1">
+        <div className="flex gap-5 text-base pt-1">
           {role === 'superviseur' && (
             <>
               <Link href="/agent/import" className="text-[var(--dgid-brown)] hover:underline">
@@ -93,7 +93,7 @@ export default function AgentDashboard() {
         </div>
       </div>
 
-      <div className="flex gap-2 mb-6 text-sm">
+      <div className="flex gap-2 mb-6 text-base">
         <button
           onClick={() => setFiltreStatut('tous')}
           className={`px-3 py-1.5 border font-bold ${filtreStatut === 'tous' ? 'border-[var(--dgid-brown)] bg-[var(--dgid-brown)] text-white' : 'border-[var(--line)] text-[var(--ink-soft)] font-normal'}`}
@@ -140,7 +140,7 @@ export default function AgentDashboard() {
           </div>
         ))}
         {dossiersAffiches.length === 0 && (
-          <p className="text-[var(--ink-soft)] text-sm py-6">Aucun dossier pour ce filtre.</p>
+          <p className="text-[var(--ink-soft)] text-base py-6">Aucun dossier pour ce filtre.</p>
         )}
       </div>
     </main>

@@ -33,11 +33,11 @@ export default function LoginAgent() {
 
   return (
     <main className="max-w-sm mx-auto px-6 py-24">
-      <Link href="/" className="text-sm text-[var(--ink-soft)] hover:text-[var(--ink)]">← Accueil</Link>
+      <Link href="/" className="text-base text-[var(--ink-soft)] hover:text-[var(--ink)]">← Accueil</Link>
       <h1 className="serif text-2xl mt-3 mb-8">Connexion agent</h1>
       <form onSubmit={connecter} className="space-y-5">
         <div>
-          <label className="block text-sm text-[var(--ink-soft)] mb-1">Email</label>
+          <label className="block text-base text-[var(--ink-soft)] mb-1">Email</label>
           <input
             type="email"
             className="w-full border border-[var(--line)] bg-[var(--paper-raised)] px-3 py-2 focus:outline-none focus:border-[var(--dgid-brown)]"
@@ -47,7 +47,7 @@ export default function LoginAgent() {
           />
         </div>
         <div>
-          <label className="block text-sm text-[var(--ink-soft)] mb-1">Mot de passe</label>
+          <label className="block text-base text-[var(--ink-soft)] mb-1">Mot de passe</label>
           <input
             type="password"
             className="w-full border border-[var(--line)] bg-[var(--paper-raised)] px-3 py-2 focus:outline-none focus:border-[var(--dgid-brown)]"

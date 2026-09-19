@@ -326,7 +326,7 @@ export default function DemandePage() {
       {etape === 'recherche' && (
         <form onSubmit={rechercherNinea} className="space-y-5">
           <div>
-            <label className="block text-sm text-[var(--ink-soft)] mb-1">Numéro NINEA</label>
+            <label className="block text-base text-[var(--ink-soft)] mb-1">Saisissez votre NINEA</label>
             <input
               className="w-full border border-[var(--dgid-brown)] bg-[var(--dgid-brown)] text-white placeholder-white/60 px-3 py-2 focus:outline-none"
               value={ninea}
