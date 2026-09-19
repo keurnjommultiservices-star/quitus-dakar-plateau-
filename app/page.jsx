@@ -22,12 +22,15 @@ export default function Home() {
             <span className="text-[var(--green)] group-hover:translate-x-1 transition-transform">›</span>
           </div>
         </Link>
-        <Link href="/agent/login" className="register-row flex items-center justify-between py-5 group">
-          <div>
-            <div className="serif text-xl">Agent des impôts</div>
-            <div className="text-base text-[var(--ink-soft)]">Traiter les dossiers déposés</div>
+        <Link href="/agent/login" className="register-row flex items-center gap-4 py-5 group">
+          <img src="/icone-agent.svg" alt="" width={40} height={57} />
+          <div className="flex-1 flex items-center justify-between">
+            <div>
+              <div className="serif text-xl">Agent des impôts</div>
+              <div className="text-base text-[var(--ink-soft)]">Traiter les dossiers déposés</div>
+            </div>
+            <span className="text-[var(--green)] group-hover:translate-x-1 transition-transform">›</span>
           </div>
-          <span className="text-[var(--green)] group-hover:translate-x-1 transition-transform">›</span>
         </Link>
       </div>
     </main>
