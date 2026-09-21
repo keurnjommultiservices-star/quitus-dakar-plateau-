@@ -315,9 +315,9 @@ export default function DemandePage() {
   return (
     <main className="max-w-xl mx-auto px-6 py-16">
       <div className="flex justify-between items-center">
-        <Link href="/" className="text-base text-[var(--ink-soft)] hover:text-[var(--ink)]">← Accueil</Link>
+        <Link href="/" className="text-lg font-bold text-[var(--ink-soft)] hover:text-[var(--ink)]">← Accueil</Link>
         {etape !== 'recherche' && (
-          <button onClick={deconnecter} className="text-sm text-[var(--ink-soft)] hover:text-[var(--ink)]">
+          <button onClick={deconnecter} className="text-lg font-bold text-[var(--ink-soft)] hover:text-[var(--ink)]">
             Se déconnecter
           </button>
         )}
@@ -347,7 +347,7 @@ export default function DemandePage() {
 
       {etape === 'motdepasse' && client && (
         <form onSubmit={validerMotDePasse} className="space-y-5">
-          <button type="button" onClick={retourRecherche} className="text-sm text-[var(--ink-soft)] hover:text-[var(--ink)]">
+          <button type="button" onClick={retourRecherche} className="text-lg font-bold text-[var(--ink-soft)] hover:text-[var(--ink)]">
             ← Nouvelle recherche
           </button>
           <p className="text-sm text-[var(--ink-soft)]">{client.raison_sociale} — NINEA {client.ninea}</p>
@@ -381,7 +381,7 @@ export default function DemandePage() {
           <button
             type="button"
             onClick={retourRecherche}
-            className="text-sm text-[var(--ink-soft)] hover:text-[var(--ink)]"
+            className="text-lg font-bold text-[var(--ink-soft)] hover:text-[var(--ink)]"
           >
             ← Nouvelle recherche
           </button>
@@ -451,7 +451,7 @@ export default function DemandePage() {
 
       {etape === 'trouve' && client && (
         <div className="space-y-8">
-          <button onClick={retourRecherche} className="text-sm text-[var(--ink-soft)] hover:text-[var(--ink)]">
+          <button onClick={retourRecherche} className="text-lg font-bold text-[var(--ink-soft)] hover:text-[var(--ink)]">
             ← Nouvelle recherche
           </button>
 
