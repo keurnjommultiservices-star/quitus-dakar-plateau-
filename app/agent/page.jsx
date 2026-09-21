@@ -66,6 +66,11 @@ export default function AgentDashboard() {
   const dossiersAffiches =
     filtreStatut === 'tous' ? dossiers : dossiers.filter((d) => d.statut === filtreStatut);
 
+  const compteurs = STATUTS.reduce((acc, s) => {
+    acc[s.valeur] = dossiers.filter((d) => d.statut === s.valeur).length;
+    return acc;
+  }, {});
+
   return (
     <main className="max-w-4xl mx-auto px-6 py-12">
       <div className="flex justify-between items-start mb-10">
@@ -93,25 +98,33 @@ export default function AgentDashboard() {
         </div>
       </div>
 
-      <div className="flex gap-2 mb-6 text-base">
+      <p className="text-sm text-[var(--ink-soft)] mb-2">Vue d'ensemble — cliquez sur un statut pour filtrer</p>
+      <div className="grid grid-cols-2 sm:grid-cols-5 gap-3 mb-8">
         <button
           onClick={() => setFiltreStatut('tous')}
-          className={`px-3 py-1.5 border font-bold ${filtreStatut === 'tous' ? 'border-[var(--dgid-brown)] bg-[var(--dgid-brown)] text-white' : 'border-[var(--line)] text-[var(--ink-soft)] font-normal'}`}
+          className="text-left px-4 py-3 border-2"
+          style={{
+            backgroundColor: 'var(--dgid-brown)',
+            color: 'white',
+            borderColor: filtreStatut === 'tous' ? 'var(--ink)' : 'var(--dgid-brown)',
+          }}
         >
-          Tous
+          <div className="text-2xl font-bold">{dossiers.length}</div>
+          <div className="text-sm">Tous</div>
         </button>
         {STATUTS.map((s) => (
           <button
             key={s.valeur}
             onClick={() => setFiltreStatut(s.valeur)}
-            className={`px-3 py-1.5 border ${filtreStatut === s.valeur ? 'font-bold' : ''}`}
-            style={
-              filtreStatut === s.valeur
-                ? { borderColor: s.fond, backgroundColor: s.fond, color: s.texte }
-                : { borderColor: 'var(--line)', color: 'var(--ink-soft)' }
-            }
+            className="text-left px-4 py-3 border-2"
+            style={{
+              backgroundColor: s.fond,
+              color: s.texte,
+              borderColor: filtreStatut === s.valeur ? 'var(--ink)' : s.fond,
+            }}
           >
-            {s.libelle}
+            <div className="text-2xl font-bold">{compteurs[s.valeur] || 0}</div>
+            <div className="text-sm">{s.libelle}</div>
           </button>
         ))}
       </div>
