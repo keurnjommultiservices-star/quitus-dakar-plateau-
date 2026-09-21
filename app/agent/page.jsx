@@ -75,10 +75,10 @@ export default function AgentDashboard() {
     <main className="max-w-4xl mx-auto px-6 py-12">
       <div className="flex justify-between items-start mb-10">
         <div>
-          <Link href="/" className="text-base text-[var(--ink-soft)] hover:text-[var(--ink)]">← Accueil</Link>
+          <Link href="/" className="text-lg font-bold text-[var(--ink-soft)] hover:text-[var(--ink)]">← Accueil</Link>
           <h1 className="serif text-2xl mt-3">Dossiers de quitus</h1>
         </div>
-        <div className="flex gap-5 text-base pt-1">
+        <div className="flex gap-5 text-lg font-bold pt-1">
           {role === 'superviseur' && (
             <>
               <Link href="/agent/import" className="text-[var(--dgid-brown)] hover:underline">
@@ -98,7 +98,7 @@ export default function AgentDashboard() {
         </div>
       </div>
 
-      <p className="text-sm text-[var(--ink-soft)] mb-2">Vue d'ensemble — cliquez sur un statut pour filtrer</p>
+      <p className="text-base font-bold text-[var(--ink-soft)] mb-2">Vue d'ensemble — cliquez sur un statut pour filtrer</p>
       <div className="grid grid-cols-2 sm:grid-cols-5 gap-3 mb-8">
         <button
           onClick={() => setFiltreStatut('tous')}
