@@ -5,11 +5,13 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { supabase } from '../../lib/supabaseClient';
 import { STATUTS, couleurStatut, fondStatut } from '../../lib/statuts';
+import { ETAPES } from '../../lib/etapes';
 
 export default function AgentDashboard() {
   const [session, setSession] = useState(undefined);
   const [role, setRole] = useState(null);
   const [dossiers, setDossiers] = useState([]);
+  const [agentsListe, setAgentsListe] = useState([]);
   const [filtreStatut, setFiltreStatut] = useState('tous');
   const router = useRouter();
 
@@ -32,6 +34,10 @@ export default function AgentDashboard() {
         .eq('user_id', session.user.id)
         .maybeSingle()
         .then(({ data }) => setRole(data?.role || 'agent'));
+      supabase
+        .from('profils_agents')
+        .select('user_id, nom_complet')
+        .then(({ data }) => setAgentsListe(data || []));
     }
   }, [session]);
 
@@ -54,6 +60,22 @@ export default function AgentDashboard() {
     });
 
     chargerDossiers();
+  }
+
+  async function changerEtape(demande, nouvelleEtape) {
+    await supabase.from('demandes').update({ etape: nouvelleEtape }).eq('id', demande.id);
+    chargerDossiers();
+  }
+
+  async function assignerAgent(demande, agentId) {
+    await supabase.from('demandes').update({ agent_assigne_id: agentId || null }).eq('id', demande.id);
+    chargerDossiers();
+  }
+
+  function nomAgent(userId) {
+    if (!userId) return '';
+    const a = agentsListe.find((a) => a.user_id === userId);
+    return a?.nom_complet || userId.slice(0, 8);
   }
 
   async function deconnecter() {
@@ -134,25 +156,58 @@ export default function AgentDashboard() {
 
       <div>
         {dossiersAffiches.map((d) => (
-          <div key={d.id} className="register-row flex justify-between items-center py-4">
-            <div>
-              <div className="serif">{d.clients?.raison_sociale || d.ninea}</div>
-              <div className="text-sm text-[var(--ink-soft)]">
-                NINEA {d.ninea} — {new Date(d.date_creation).toLocaleDateString('fr-FR')}
+          <div key={d.id} className="register-row py-4">
+            <div className="flex justify-between items-start gap-3 flex-wrap">
+              <div>
+                <div className="serif">{d.clients?.raison_sociale || d.ninea}</div>
+                <div className="text-sm text-[var(--ink-soft)]">
+                  NINEA {d.ninea} — {new Date(d.date_creation).toLocaleDateString('fr-FR')}
+                </div>
               </div>
+              <select
+                value={d.statut}
+                onChange={(e) => changerStatut(d, e.target.value)}
+                className="border-0 px-3 py-1.5 text-sm font-bold"
+                style={{ backgroundColor: fondStatut(d.statut), color: couleurStatut(d.statut) }}
+              >
+                {STATUTS.map((s) => (
+                  <option key={s.valeur} value={s.valeur}>
+                    {s.libelle}
+                  </option>
+                ))}
+              </select>
             </div>
-            <select
-              value={d.statut}
-              onChange={(e) => changerStatut(d, e.target.value)}
-              className="border-0 px-3 py-1.5 text-sm font-bold"
-              style={{ backgroundColor: fondStatut(d.statut), color: couleurStatut(d.statut) }}
-            >
-              {STATUTS.map((s) => (
-                <option key={s.valeur} value={s.valeur}>
-                  {s.libelle}
-                </option>
-              ))}
-            </select>
+            <div className="flex gap-3 mt-2 flex-wrap items-center text-sm">
+              <label className="text-[var(--ink-soft)]">
+                Étape :{' '}
+                <select
+                  value={d.etape || 'secretariat'}
+                  onChange={(e) => changerEtape(d, e.target.value)}
+                  className="border border-[var(--line)] bg-[var(--paper-raised)] px-2 py-1"
+                >
+                  {ETAPES.map((e) => (
+                    <option key={e.valeur} value={e.valeur}>
+                      {e.libelle}
+                    </option>
+                  ))}
+                </select>
+              </label>
+              <label className="text-[var(--ink-soft)]">
+                Affecté à :{' '}
+                <select
+                  value={d.agent_assigne_id || ''}
+                  onChange={(e) => assignerAgent(d, e.target.value)}
+                  className="border border-[var(--line)] bg-[var(--paper-raised)] px-2 py-1"
+                >
+                  <option value="">— non affecté —</option>
+                  {agentsListe.map((a) => (
+                    <option key={a.user_id} value={a.user_id}>
+                      {a.nom_complet || a.user_id.slice(0, 8)}
+                    </option>
+                  ))}
+                </select>
+              </label>
+            </div>
           </div>
         ))}
         {dossiersAffiches.length === 0 && (
