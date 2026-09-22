@@ -6,6 +6,8 @@ import Link from 'next/link';
 import { supabase } from '../../../lib/supabaseClient';
 import { cleMois, libelleMois, cleTrimestre, libelleTrimestre, statistiquesParPeriode } from '../../../lib/statistiques';
 
+const OBJECTIF_JOURS_MAX = 4;
+
 export default function StatistiquesAgent() {
   const router = useRouter();
   const [autorise, setAutorise] = useState(false);
@@ -35,6 +37,19 @@ export default function StatistiquesAgent() {
   const totalRecues = demandes.length;
   const totalDeposeesTresor = demandes.filter((d) => d.statut === 'depose_au_tresor').length;
 
+  const delaisValides = demandes
+    .filter((d) => d.statut === 'depose_au_tresor')
+    .map((d) => (new Date(d.date_maj) - new Date(d.date_creation)) / (1000 * 60 * 60 * 24))
+    .filter((j) => j >= 0);
+  const delaiMoyenGlobal = delaisValides.length > 0
+    ? delaisValides.reduce((a, b) => a + b, 0) / delaisValides.length
+    : null;
+
+  function couleurDelai(jours) {
+    if (jours === null) return 'var(--ink-soft)';
+    return jours <= OBJECTIF_JOURS_MAX ? 'var(--green)' : 'var(--clay)';
+  }
+
   return (
     <main className="max-w-3xl mx-auto px-6 py-12">
       <div className="flex justify-between items-center print:hidden">
@@ -48,7 +63,7 @@ export default function StatistiquesAgent() {
       </div>
 
       <h1 className="serif text-2xl mt-3 mb-2">Statistiques des demandes de quitus</h1>
-      <p className="text-sm text-[var(--ink-soft)] mb-8">
+      <p className="text-base font-bold text-[var(--ink-soft)] mb-8">
         Centre des impôts de Dakar Plateau — Demandes reçues au secrétariat et déposées au Trésor
       </p>
 
@@ -56,14 +71,22 @@ export default function StatistiquesAgent() {
         <p className="text-[var(--ink-soft)]">Chargement...</p>
       ) : (
         <>
-          <div className="grid grid-cols-2 gap-3 mb-10">
+          <div className="grid grid-cols-3 gap-3 mb-10">
             <div className="border border-[var(--line)] bg-[var(--paper-raised)] p-4">
               <div className="text-2xl font-bold">{totalRecues}</div>
-              <div className="text-sm text-[var(--ink-soft)]">Total reçues au secrétariat</div>
+              <div className="text-base font-bold text-[var(--ink-soft)]">Total reçues au secrétariat</div>
             </div>
             <div className="border border-[var(--line)] bg-[var(--paper-raised)] p-4">
               <div className="text-2xl font-bold">{totalDeposeesTresor}</div>
-              <div className="text-sm text-[var(--ink-soft)]">Total déposées au Trésor</div>
+              <div className="text-base font-bold text-[var(--ink-soft)]">Total déposées au Trésor</div>
+            </div>
+            <div className="border border-[var(--line)] bg-[var(--paper-raised)] p-4">
+              <div className="text-2xl font-bold" style={{ color: couleurDelai(delaiMoyenGlobal) }}>
+                {delaiMoyenGlobal !== null ? delaiMoyenGlobal.toFixed(1) : '—'} j
+              </div>
+              <div className="text-base font-bold text-[var(--ink-soft)]">
+                Délai moyen de traitement (objectif : {OBJECTIF_JOURS_MAX} j max)
+              </div>
             </div>
           </div>
 
@@ -74,6 +97,7 @@ export default function StatistiquesAgent() {
                 <th className="py-2">Mois</th>
                 <th className="py-2 text-right">Reçues au secrétariat</th>
                 <th className="py-2 text-right">Déposées au Trésor</th>
+                <th className="py-2 text-right">Délai moyen</th>
               </tr>
             </thead>
             <tbody>
@@ -82,11 +106,14 @@ export default function StatistiquesAgent() {
                   <td className="py-2">{ligne.libelle}</td>
                   <td className="py-2 text-right">{ligne.recues}</td>
                   <td className="py-2 text-right">{ligne.deposeesTresor}</td>
+                  <td className="py-2 text-right font-bold" style={{ color: couleurDelai(ligne.delaiMoyen) }}>
+                    {ligne.delaiMoyen !== null ? `${ligne.delaiMoyen.toFixed(1)} j` : '—'}
+                  </td>
                 </tr>
               ))}
               {parMois.length === 0 && (
                 <tr>
-                  <td colSpan={3} className="py-4 text-[var(--ink-soft)]">Aucune donnée.</td>
+                  <td colSpan={4} className="py-4 text-[var(--ink-soft)]">Aucune donnée.</td>
                 </tr>
               )}
             </tbody>
@@ -99,6 +126,7 @@ export default function StatistiquesAgent() {
                 <th className="py-2">Trimestre</th>
                 <th className="py-2 text-right">Reçues au secrétariat</th>
                 <th className="py-2 text-right">Déposées au Trésor</th>
+                <th className="py-2 text-right">Délai moyen</th>
               </tr>
             </thead>
             <tbody>
@@ -107,11 +135,14 @@ export default function StatistiquesAgent() {
                   <td className="py-2">{ligne.libelle}</td>
                   <td className="py-2 text-right">{ligne.recues}</td>
                   <td className="py-2 text-right">{ligne.deposeesTresor}</td>
+                  <td className="py-2 text-right font-bold" style={{ color: couleurDelai(ligne.delaiMoyen) }}>
+                    {ligne.delaiMoyen !== null ? `${ligne.delaiMoyen.toFixed(1)} j` : '—'}
+                  </td>
                 </tr>
               ))}
               {parTrimestre.length === 0 && (
                 <tr>
-                  <td colSpan={3} className="py-4 text-[var(--ink-soft)]">Aucune donnée.</td>
+                  <td colSpan={4} className="py-4 text-[var(--ink-soft)]">Aucune donnée.</td>
                 </tr>
               )}
             </tbody>
