@@ -92,6 +92,9 @@ export default function AgentDashboard() {
           <Link href="/agent/changer-mot-de-passe" className="text-[var(--dgid-brown)] hover:underline">
             Changer mon mot de passe
           </Link>
+          <Link href="/agent/statistiques" className="text-[var(--dgid-brown)] hover:underline">
+            Statistiques
+          </Link>
           <button onClick={deconnecter} className="text-[var(--ink-soft)] hover:text-[var(--ink)]">
             Déconnexion
           </button>
