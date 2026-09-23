@@ -7,7 +7,7 @@ export default function Home() {
       <h1 className="serif text-3xl font-medium mb-2">
         Quitus fiscal — Centre des impôts de Dakar Plateau
       </h1>
-      <p className="text-lg text-[var(--ink-soft)] mb-12 max-w-md">
+      <p className="text-lg font-bold text-white bg-[#1B4B6B] px-4 py-3 mb-12 max-w-md">
         Dépôt d'une demande de quitus fiscal, et suivi de son traitement jusqu'à son dépôt au Trésor.
       </p>
 
